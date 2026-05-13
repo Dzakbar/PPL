@@ -11,7 +11,10 @@ export default function RegistrationPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [films, setFilms] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState(null)
+  const [user, setUser] = useState(null)
   const [form, setForm] = useState({
     filmSlug: '',
     fullName: '',
@@ -20,6 +23,10 @@ export default function RegistrationPage() {
     portfolio: '',
     notes: '',
   })
+
+  useEffect(() => {
+    setUser(api.getCurrentUser())
+  }, [])
 
   useEffect(() => {
     api.getUpcomingFilms().then((data) => {
@@ -46,6 +53,7 @@ export default function RegistrationPage() {
 
   const updateField = (field, value) => {
     setSubmitted(false)
+    setError(null)
     setForm((current) => ({ ...current, [field]: value }))
   }
 
@@ -59,9 +67,30 @@ export default function RegistrationPage() {
     }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    setSubmitted(true)
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      await api.submitFilmApplication({
+        ...form,
+        filmId: selectedFilm.id,
+        userId: user?.id || null
+      })
+      setSubmitted(true)
+      setForm({
+        ...form,
+        fullName: '',
+        contact: '',
+        portfolio: '',
+        notes: '',
+      })
+    } catch (err) {
+      setError(err.message || 'Failed to submit registration. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!selectedFilm) {
@@ -157,14 +186,14 @@ export default function RegistrationPage() {
             </Link>
           </motion.aside>
 
-          <motion.form
-            initial={{ opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.65, delay: 0.1 }}
-            onSubmit={handleSubmit}
-            className="rounded-lg border border-wigra-black/10 bg-wigra-light p-6 md:p-8"
-          >
+            <motion.form
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.65, delay: 0.1 }}
+              onSubmit={handleSubmit}
+              className="rounded-lg border border-wigra-black/10 bg-wigra-light p-6 md:p-8"
+            >
             <div className="mb-8">
               <h2 className="font-serif text-3xl font-semibold">Registration Form</h2>
               <p className="mt-2 text-sm leading-6 text-wigra-black/60">
@@ -258,16 +287,25 @@ export default function RegistrationPage() {
               </label>
             </div>
 
+            {error && (
+              <div className="mt-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+                {error}
+              </div>
+            )}
+
             {submitted && (
               <div className="mt-6 rounded-lg border border-wigra-accent/30 bg-wigra-accent/10 px-4 py-3 text-sm text-wigra-accent">
-                Preview pendaftaran sudah tersimpan di halaman ini. Saat backend siap,
-                form ini bisa disambungkan ke database atau email.
+                Terima kasih! Pendaftaran Anda telah berhasil dikirim. Kami akan menghubungi Anda segera.
               </div>
             )}
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button type="submit" className="btn-accent">
-                Submit Registration
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className={`btn-accent ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Registration'}
               </button>
               <Link
                 to="/films"

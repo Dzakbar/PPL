@@ -109,19 +109,31 @@ function normalizeCategory(value, film) {
   return category || 'films'
 }
 
-async function fetchFromAPI(endpoint) {
+async function fetchFromAPI(endpoint, options = {}) {
   try {
     const url = `${API_BASE_URL}${endpoint}`
-    console.log(`[API Request] Fetching: ${url}`)
+    const method = options.method || 'GET'
+    console.log(`[API Request] ${method}: ${url}`)
     
-    const response = await fetch(url)
-    if (!response.ok) throw new Error(`API Error ${response.status}: ${endpoint}`)
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        ...options.headers,
+      }
+    })
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.message || `API Error ${response.status}: ${endpoint}`)
+    }
     
     const data = await response.json()
     console.log(`[API Response] Data from ${endpoint}:`, data)
     return data
   } catch (error) {
-    console.error(`[API Error] Failed to fetch ${endpoint}:`, error.message)
+    console.error(`[API Error] Failed to ${options.method || 'fetch'} ${endpoint}:`, error.message)
     throw error
   }
 }
@@ -130,7 +142,8 @@ function normalizeFilm(film, index = 0) {
   const title = pick(film, ['title', 'name', 'judul'], `Untitled Project ${index + 1}`)
   const status = pick(film, ['status', 'film_status'], '')
   const category = normalizeCategory(pick(film, ['category', 'type', 'project_type']), film)
-  const openRoles = toList(pick(film, ['openRoles', 'open_roles', 'roles', 'role']))
+  const openRoles = toList(pick(film, ['roles_needed', 'openRoles', 'open_roles', 'roles', 'role']))
+  const defaultRoles = ['Talent', 'Astrada', 'DOP', 'ART', 'Wardrobe', 'Sound', 'Gaffer']
 
   return {
     ...film,
@@ -168,7 +181,7 @@ function normalizeFilm(film, index = 0) {
       ['registrationDeadline', 'registration_deadline', 'deadline', 'batas_daftar'],
       '-',
     ),
-    openRoles: openRoles.length ? openRoles : ['Production Crew'],
+    openRoles: [...new Set([...openRoles, ...defaultRoles])],
   }
 }
 
@@ -269,6 +282,18 @@ const api = USE_DUMMY
       async getEventById(id) { return dummyEvents.find((e) => String(e.id) === String(id)) || null },
       async getTeams() { return dummyCompanyInfo.team },
       async getCompanyInfo() { return dummyCompanyInfo },
+      async submitFilmApplication() {
+        return new Promise((resolve) => setTimeout(() => resolve({ message: 'Dummy success' }), 800))
+      },
+      logout() {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        window.location.reload();
+      },
+      getCurrentUser() {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+      }
     }
   : {
       async getFilms() {
@@ -300,6 +325,34 @@ const api = USE_DUMMY
           team,
         }
       },
+      async submitFilmApplication(formData) {
+        return fetchFromAPI('/api/film-applications', {
+          method: 'POST',
+          body: JSON.stringify({
+            user_id: formData.userId,
+            film_id: formData.filmId,
+            name: formData.fullName,
+            contact: formData.contact,
+            role: formData.role,
+            portfolio_link: formData.portfolio,
+            notes: formData.notes,
+          }),
+          headers: {
+            ...(localStorage.getItem('auth_token') 
+              ? { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } 
+              : {})
+          }
+        })
+      },
+      logout() {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        window.location.reload();
+      },
+      getCurrentUser() {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+      }
     }
 
 export default api

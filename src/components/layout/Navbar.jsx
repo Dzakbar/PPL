@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ASSETS } from '../../constants/assets'
+import api from '../../services/api'
 
 const navLinks = [
   { path: '/', label: 'Home' },
@@ -14,6 +15,11 @@ export default function Navbar() {
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    setUser(api.getCurrentUser())
+  }, [])
 
   const isHome = location.pathname === '/'
   const hasDarkBanner =
@@ -92,7 +98,12 @@ export default function Navbar() {
           </nav>
 
           {/* CTA Desktop */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-6">
+            {user && (
+              <span className={`text-[10px] tracking-widest uppercase ${useDarkText ? 'text-wigra-black/40' : 'text-white/40'}`}>
+                Hi, {user.name.split(' ')[0]}
+              </span>
+            )}
             <a
               href="https://wa.me/62812811109850"
               target="_blank"
@@ -166,16 +177,25 @@ export default function Navbar() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.4 }}
-                className="mt-6"
+                className="mt-10 flex flex-col items-center gap-4"
               >
                 <a
                   href="https://wa.me/62812811109850"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary"
+                  className="btn-primary w-48 text-center"
                 >
                   Get in Touch
                 </a>
+                {user ? (
+                  <button onClick={() => api.logout()} className="text-white/40 text-[10px] tracking-[0.2em] uppercase mt-4">
+                    Logout ({user.name})
+                  </button>
+                ) : (
+                  <a href="http://localhost:8000/login/admin" className="text-white/40 text-[10px] tracking-[0.2em] uppercase mt-4">
+                    Admin / User Login
+                  </a>
+                )}
               </motion.div>
             </nav>
           </motion.div>

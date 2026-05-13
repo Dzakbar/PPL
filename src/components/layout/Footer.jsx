@@ -80,10 +80,18 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-white/5 px-6 md:px-12 lg:px-20 py-6">
-        <p className="text-center text-xs text-white/30">
+      <div className="border-t border-white/5 px-6 md:px-12 lg:px-20 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p className="text-xs text-white/30 order-2 md:order-1">
           &copy; {new Date().getFullYear()} W/ Their Gratitude. All rights reserved.
         </p>
+        <div className="order-1 md:order-2 flex items-center gap-6">
+          <a 
+            href="http://localhost:8000/login/admin" 
+            className="text-[10px] tracking-[0.2em] uppercase text-white/30 hover:text-wigra-gold transition-colors"
+          >
+            System Login
+          </a>
+        </div>
       </div>
     </footer>
   )

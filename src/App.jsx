@@ -7,6 +7,7 @@ import EventsPage from './pages/EventsPage'
 import OurStoryPage from './pages/OurStoryPage'
 import OurTeamPage from './pages/OurTeamPage'
 import RegistrationPage from './pages/RegistrationPage'
+import AuthCallback from './pages/AuthCallback'
 
 function App() {
   const location = useLocation()
@@ -21,6 +22,7 @@ function App() {
         <Route path="/films" element={<FilmsPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/registration" element={<RegistrationPage />} />
+        <Route path="/auth-callback" element={<AuthCallback />} />
       </Routes>
     </Layout>
   )
