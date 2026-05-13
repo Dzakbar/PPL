@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom'
+import { ASSETS } from '../../constants/assets'
 
 const footerNav = [
   { path: '/', label: 'Home' },
   { path: '/about', label: 'About' },
+  { path: '/our-story', label: 'Our Story' },
+  { path: '/our-team', label: 'Our Team' },
   { path: '/films', label: 'Films' },
   { path: '/events', label: 'Events' },
 ]
@@ -66,7 +69,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="flex flex-col gap-4">
             <img
-              src="/asset/logo.png"
+              src={ASSETS.logo}
               alt="Wigra Logo"
               className="h-10 w-fit brightness-0 invert opacity-50"
             />

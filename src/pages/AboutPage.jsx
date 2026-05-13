@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import PageTransition from '../components/layout/PageTransition'
 import api from '../services/api'
+import { ASSETS } from '../constants/assets'
+
+const sectionLinks = ['/our-story', '/our-team']
 
 export default function AboutPage() {
   const [info, setInfo] = useState(null)
@@ -38,7 +42,7 @@ export default function AboutPage() {
               className="aspect-video rounded-xl overflow-hidden"
             >
               <img
-                src="/asset/filmmaker.jpeg"
+                src={ASSETS.filmmaker}
                 alt="W/ Their Gratitude Office"
                 className="w-full h-full object-cover"
               />
@@ -64,14 +68,17 @@ export default function AboutPage() {
               <p className="text-sm text-wigra-black/60 leading-relaxed">
                 {section.description}
               </p>
-              {i < 2 && (
-                <button className="mt-4 text-sm text-wigra-accent tracking-wide hover:tracking-wider transition-all duration-300">
-                  Read More →
-                </button>
+              {sectionLinks[i] && (
+                <Link
+                  to={sectionLinks[i]}
+                  className="mt-4 inline-block text-sm text-wigra-accent tracking-wide transition-all duration-300 hover:tracking-wider"
+                >
+                  Read More -&gt;
+                </Link>
               )}
-              {i === 2 && (
+              {!sectionLinks[i] && (
                 <span className="mt-4 inline-block text-sm text-wigra-black/30 tracking-wide">
-                  Coming Soon →
+                  Coming Soon -&gt;
                 </span>
               )}
             </motion.div>

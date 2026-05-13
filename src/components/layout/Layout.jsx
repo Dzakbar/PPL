@@ -7,7 +7,7 @@ export default function Layout({ children }) {
   const { pathname } = useLocation()
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    window.scrollTo({ top: 0, behavior: 'auto' })
   }, [pathname])
 
   return (

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageTransition from '../components/layout/PageTransition'
 import api from '../services/api'
 
-/* ─── Film Modal ─── */
 function FilmModal({ film, films, onClose, onNavigate }) {
   if (!film) return null
 
@@ -13,6 +13,7 @@ function FilmModal({ film, films, onClose, onNavigate }) {
     const prev = currentIndex > 0 ? currentIndex - 1 : films.length - 1
     onNavigate(films[prev])
   }
+
   const goNext = () => {
     const next = currentIndex < films.length - 1 ? currentIndex + 1 : 0
     onNavigate(films[next])
@@ -34,26 +35,24 @@ function FilmModal({ film, films, onClose, onNavigate }) {
         className="glass-card max-w-4xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex justify-end p-4">
           <button
             onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 
-                       text-white/50 hover:text-white hover:border-white/30 transition-all"
+            className="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 text-white/50 hover:text-white hover:border-white/30 transition-all"
+            aria-label="Close film details"
           >
-            ✕
+            x
           </button>
         </div>
 
-        {/* Image + Nav */}
         <div className="relative px-4">
           <div className="flex items-center gap-4">
             <button
               onClick={goPrev}
-              className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full border border-white/10 
-                         text-white/50 hover:text-white hover:border-white/30 transition-all text-xl"
+              className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full border border-white/10 text-white/50 hover:text-white hover:border-white/30 transition-all text-xl"
+              aria-label="Previous film"
             >
-              ‹
+              &lt;
             </button>
             <div className="flex-1 aspect-video rounded-lg overflow-hidden">
               <img
@@ -64,15 +63,14 @@ function FilmModal({ film, films, onClose, onNavigate }) {
             </div>
             <button
               onClick={goNext}
-              className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full border border-white/10 
-                         text-white/50 hover:text-white hover:border-white/30 transition-all text-xl"
+              className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full border border-white/10 text-white/50 hover:text-white hover:border-white/30 transition-all text-xl"
+              aria-label="Next film"
             >
-              ›
+              &gt;
             </button>
           </div>
         </div>
 
-        {/* Info */}
         <div className="p-6 md:p-8">
           <h2 className="font-serif text-2xl md:text-3xl mb-4">{film.title}</h2>
           <div className="grid grid-cols-3 gap-4 mb-6">
@@ -99,27 +97,119 @@ function FilmModal({ film, films, onClose, onNavigate }) {
   )
 }
 
-/* ─── FILMS PAGE ─── */
+function UpcomingFilms({ films }) {
+  return (
+    <section className="px-6 md:px-12 lg:px-20 pb-16">
+      <div className="mx-auto max-w-6xl space-y-6">
+        {films.map((film, i) => (
+          <motion.article
+            key={film.id}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            className="group overflow-hidden rounded-xl border border-white/10 bg-white/[0.04]"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr]">
+              <div className="relative min-h-[300px] overflow-hidden">
+                <img
+                  src={film.image}
+                  alt={film.title}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                <div className="absolute left-5 top-5 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-wigra-accent px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
+                    Upcoming Film
+                  </span>
+                  <span className="rounded-full border border-white/30 bg-black/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
+                    {film.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col justify-between p-6 md:p-8">
+                <div>
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-wigra-gold">
+                    {film.genre}
+                  </p>
+                  <h2 className="font-serif text-3xl font-semibold md:text-5xl">
+                    {film.title}
+                  </h2>
+                  <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60 md:text-base">
+                    {film.synopsis}
+                  </p>
+
+                  <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                    <div className="border-t border-white/10 pt-4">
+                      <span className="block text-xs uppercase tracking-[0.18em] text-white/40">
+                        Production Window
+                      </span>
+                      <span className="mt-1 block text-sm text-white">
+                        {film.productionWindow}
+                      </span>
+                    </div>
+                    <div className="border-t border-white/10 pt-4">
+                      <span className="block text-xs uppercase tracking-[0.18em] text-white/40">
+                        Deadline
+                      </span>
+                      <span className="mt-1 block text-sm text-wigra-gold">
+                        {film.registrationDeadline}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {film.openRoles.map((role) => (
+                      <span
+                        key={role}
+                        className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/50"
+                      >
+                        {role}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <Link
+                    to={`/registration?film=${film.slug}`}
+                    className="btn-accent"
+                  >
+                    Daftar Sekarang -&gt;
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </motion.article>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function FilmsPage() {
   const [films, setFilms] = useState([])
-  const [filter, setFilter] = useState('all')
+  const [upcomingFilms, setUpcomingFilms] = useState([])
+  const [filter, setFilter] = useState('films')
   const [selectedFilm, setSelectedFilm] = useState(null)
 
   useEffect(() => {
     api.getFilms().then(setFilms)
+    api.getUpcomingFilms().then(setUpcomingFilms)
   }, [])
 
-  const filtered =
-    filter === 'all' ? films : films.filter((f) => f.category === filter)
+  const filtered = filter === 'upcoming'
+    ? []
+    : films.filter((film) => film.category === filter)
 
   const filters = [
-    { key: 'all', label: 'Films' },
+    { key: 'films', label: 'Films' },
     { key: 'other', label: 'Other Projects' },
+    { key: 'upcoming', label: 'Upcoming' },
   ]
 
   return (
     <PageTransition>
-      {/* Hero */}
       <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-white">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -131,19 +221,21 @@ export default function FilmsPage() {
             PROJECTS CATALOGUES
           </h1>
           <p className="section-subheading mx-auto mt-4 !text-wigra-black/60">
-            Explore our collection of documentaries, commercials, and original
-            productions that showcase our commitment to quality filmmaking.
+            Explore our collection of documentaries, commercials, original productions,
+            and upcoming projects opening for collaborators.
           </p>
         </motion.div>
       </section>
 
-      {/* Filter */}
       <section className="page-section pb-8">
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-4">
           {filters.map(({ key, label }) => (
             <button
               key={key}
-              onClick={() => setFilter(key)}
+              onClick={() => {
+                setFilter(key)
+                setSelectedFilm(null)
+              }}
               className={`px-6 py-2.5 rounded-full text-sm tracking-wide transition-all duration-300 ${
                 filter === key
                   ? 'bg-wigra-accent text-white'
@@ -156,46 +248,47 @@ export default function FilmsPage() {
         </div>
       </section>
 
-      {/* Grid */}
-      <section className="px-6 md:px-12 lg:px-20 pb-16">
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((film) => (
-              <motion.div
-                layout
-                key={film.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                onClick={() => setSelectedFilm(film)}
-                className="group relative aspect-[3/4] overflow-hidden rounded-xl cursor-pointer"
-              >
-                <img
-                  src={film.image}
-                  alt={film.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent 
-                                opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                  <h3 className="font-serif text-xl mb-1">{film.title}</h3>
-                  <div className="flex items-center gap-3 text-xs text-white/50">
-                    <span>{film.director}</span>
-                    <span>•</span>
-                    <span>{film.duration}</span>
+      {filter === 'upcoming' ? (
+        <UpcomingFilms films={upcomingFilms} />
+      ) : (
+        <section className="px-6 md:px-12 lg:px-20 pb-16">
+          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((film) => (
+                <motion.div
+                  layout
+                  key={film.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.4 }}
+                  onClick={() => setSelectedFilm(film)}
+                  className="group relative aspect-[3/4] overflow-hidden rounded-xl cursor-pointer"
+                >
+                  <img
+                    src={film.image}
+                    alt={film.title}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    <h3 className="font-serif text-xl mb-1">{film.title}</h3>
+                    <div className="flex items-center gap-3 text-xs text-white/50">
+                      <span>{film.director}</span>
+                      <span>-</span>
+                      <span>{film.duration}</span>
+                    </div>
+                    <p className="text-xs text-white/40 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      {film.genre}
+                    </p>
                   </div>
-                  <p className="text-xs text-white/40 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {film.genre}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      </section>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        </section>
+      )}
 
-      {/* CTA */}
       <section className="page-section text-center border-t border-white/5">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -218,7 +311,6 @@ export default function FilmsPage() {
         </motion.div>
       </section>
 
-      {/* Modal */}
       <AnimatePresence>
         {selectedFilm && (
           <FilmModal

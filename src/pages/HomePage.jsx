@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import PageTransition from '../components/layout/PageTransition'
 import api from '../services/api'
+import { ASSETS } from '../constants/assets'
 
 
 
@@ -21,7 +22,7 @@ function HeroSection() {
         playsInline
         loop
       >
-        <source src="/asset/Motion Page.mp4" type="video/mp4" />
+        <source src={ASSETS.motionPage} type="video/mp4" />
       </video>
 
       {/* Overlay */}

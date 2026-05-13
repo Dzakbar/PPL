@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { ASSETS } from '../../constants/assets'
 
 const navLinks = [
   { path: '/', label: 'Home' },
@@ -15,9 +16,14 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
 
   const isHome = location.pathname === '/'
-  const hasDarkBanner = isHome || location.pathname === '/about'
-  // Use dark text only on pages with white banners (Films, Events) before scroll
+  const hasDarkBanner =
+    isHome || ['/about', '/our-story', '/registration'].includes(location.pathname)
+  // Use dark text only on pages with white banners before scroll
   const useDarkText = !hasDarkBanner && !scrolled && !isOpen
+  const isActiveLink = (path) =>
+    location.pathname === path ||
+    (path === '/about' && ['/our-story', '/our-team'].includes(location.pathname)) ||
+    (path === '/films' && location.pathname === '/registration')
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50)
@@ -47,7 +53,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="relative z-[60]">
             <img
-              src="/asset/logo.png"
+              src={ASSETS.logo}
               alt="Wigra Logo"
               className={`h-8 md:h-10 transition-all duration-300 ${
                 useDarkText ? 'brightness-0' : 'brightness-0 invert'
@@ -63,16 +69,16 @@ export default function Navbar() {
                 to={path}
                 className={`relative font-sans text-sm tracking-[0.1em] uppercase transition-colors duration-300 ${
                   useDarkText
-                    ? location.pathname === path
+                    ? isActiveLink(path)
                       ? 'text-wigra-black'
                       : 'text-wigra-black/50 hover:text-wigra-black'
-                    : location.pathname === path
+                    : isActiveLink(path)
                       ? 'text-white'
                       : 'text-white/50 hover:text-white'
                 }`}
               >
                 {label}
-                {location.pathname === path && (
+                {isActiveLink(path) && (
                   <motion.div
                     layoutId="nav-underline"
                     className={`absolute -bottom-1 left-0 w-full h-[1px] transition-colors duration-300 ${
@@ -147,7 +153,7 @@ export default function Navbar() {
                   <Link
                     to={path}
                     className={`font-serif text-3xl tracking-wide transition-colors duration-300 ${
-                      location.pathname === path
+                      isActiveLink(path)
                         ? 'text-white'
                         : 'text-white/40 hover:text-white'
                     }`}
